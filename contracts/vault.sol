@@ -26,6 +26,9 @@ contract Vault {
 
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
+    uint256 public depositsCount;
+
+    // make a data structure to store the token allocation on lp pools
 
     struct Items {
         IERC20 token1;
@@ -34,8 +37,7 @@ contract Vault {
         uint256 amount1;
         uint256 amount2;
     }
-
-    uint256 public depositsCount;
+   
     mapping (uint256 => Items) public lockedToken;
     
 
@@ -84,6 +86,7 @@ contract Vault {
     // ) external returns (uint amountA, uint amountB, uint liquidity);
 
     
+    
     function allocateToPool(uint256 _id) external returns (bool) {
         addLiquidity(
             lockedToken[_id].token1,
@@ -96,12 +99,4 @@ contract Vault {
         );
     }
 
-
-
-    
-
-
-
-
-    
 }
