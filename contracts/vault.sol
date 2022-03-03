@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router01.sol';
+import "./Uniswap.sol";
 
 // interface IUniswapV2Router01 {
 //         function addLiquidity(
@@ -43,6 +44,7 @@ contract Vault {
 
     // on polygon
     address constant factory = 0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f;
+    address constant router = 0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D;
     address constant token1 = 0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619; //WETH
     address constant token2 = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174; //USDC
     // address constant pair_address = address(uint(keccak256(abi.encodePacked(
@@ -59,10 +61,10 @@ contract Vault {
     }
 
     function lockTokens(IERC20 _token1, IERC20 _token2, address _withdrawer, uint256 _amount1, uint256 _amount2) external returns (uint256 _id) {
-        require(_token1.allowance(msg.sender, address(this)) >= _amount1, 'Approve tokens first!');
-        require(_token2.allowance(msg.sender, address(this)) >= _amount2, 'Approve tokens first!');
-        _token1.safeTransferFrom(msg.sender, address(this), _amount1);
-        _token2.safeTransferFrom(msg.sender, address(this), _amount2);
+        require(IERC20(_token1).allowance(msg.sender, address(this)) >= _amount1, 'Approve tokens first!');
+        require(IERC20(_token2).allowance(msg.sender, address(this)) >= _amount2, 'Approve tokens first!');
+        IERC20(_token1).safeTransferFrom(msg.sender, address(this), _amount1);
+        IERC20(_token2).safeTransferFrom(msg.sender, address(this), _amount2);
 
         _id = ++depositsCount;
         lockedToken[_id].token1 = _token1;
@@ -88,15 +90,17 @@ contract Vault {
     
     
     function allocateToPool(uint256 _id) external returns (bool) {
-        addLiquidity(
-            lockedToken[_id].token1,
-            lockedToken[_id].token2,
-            lockedToken[_id].amount1, 
-            lockedToken[_id].amount2,
-            0,0,
-            msg.sender,
-            0            
-        );
+        (uint amount1, uint amount2, uint liquidity) =
+      IUniswapV2Router(router).addLiquidity(
+        token1,
+        token2,
+        amount1,
+        amount2,
+        1,
+        1,
+        address(this),
+        block.timestamp
+      );
     }
 
 }
