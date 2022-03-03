@@ -55,9 +55,10 @@ contract Vault {
     // ))));
 
     
-    function approve(IERC20 _token1, IERC20 _token2, address spender, uint256 _amount1, uint256 _amount2) external returns (bool) {
+    function approve(IERC20 _token1, IERC20 _token2, address spender, uint256 _amount1, uint256 _amount2) external returns (bool success) {
         _token1.safeApprove(spender,_amount1);
         _token2.safeApprove(spender,_amount2);
+        return success;
     }
 
     function lockTokens(IERC20 _token1, IERC20 _token2, address _withdrawer, uint256 _amount1, uint256 _amount2) external returns (uint256 _id) {
@@ -73,6 +74,7 @@ contract Vault {
         lockedToken[_id].amount1 = _amount1;
         lockedToken[_id].amount2 = _amount2;
         
+        return _id;
     }
 
 
@@ -89,13 +91,13 @@ contract Vault {
 
     
     
-    function allocateToPool(uint256 _id) external returns (bool) {
-        (uint amount1, uint amount2, uint liquidity) =
+    function allocateToPool(uint256 _id) external {
+        // (uint amountA, uint amountB, uint liquidity) =
       IUniswapV2Router(router).addLiquidity(
-        token1,
-        token2,
-        amount1,
-        amount2,
+        address(lockedToken[_id].token1),
+        address(lockedToken[_id].token2),
+        lockedToken[_id].amount1,
+        lockedToken[_id].amount2,
         1,
         1,
         address(this),
