@@ -61,10 +61,10 @@ contract Vault {
     }
 
     function lockTokens(IERC20 _token1, IERC20 _token2, address _withdrawer, uint256 _amount1, uint256 _amount2) external returns (uint256 _id) {
-        require(IERC20(_token1).allowance(msg.sender, address(this)) >= _amount1, 'Approve tokens first!');
-        require(IERC20(_token2).allowance(msg.sender, address(this)) >= _amount2, 'Approve tokens first!');
-        IERC20(_token1).safeTransferFrom(msg.sender, address(this), _amount1);
-        IERC20(_token2).safeTransferFrom(msg.sender, address(this), _amount2);
+        require((_token1).allowance(msg.sender, address(this)) >= _amount1, 'Approve tokens first!');
+        require((_token2).allowance(msg.sender, address(this)) >= _amount2, 'Approve tokens first!');
+        (_token1).safeTransferFrom(msg.sender, address(this), _amount1);
+        (_token2).safeTransferFrom(msg.sender, address(this), _amount2);
 
         _id = ++depositsCount;
         lockedToken[_id].token1 = _token1;
